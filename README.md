@@ -1,2 +1,1 @@
-# docker_examples
-Docker examples for Prometheus
+# Docker examples for Prometheus
