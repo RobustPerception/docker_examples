@@ -1,8 +1,9 @@
 # Simple example of how to specify configuration files.
-MAINTAINER brian.brazil@robustperception.io
 
 # Use the main Prometheus image.
 FROM prom/prometheus
+
+MAINTAINER brian.brazil@robustperception.io
 
 
 # Add in the configuration file from the local directory.
