@@ -1,40 +1,27 @@
-zookeeper:
-  build: ./zookeeper
-  command:
-    - "start-foreground"
-  ports:
-    - "2181:2181"
-
-kafka:
-  image: wurstmeister/kafka
-  links:
-    - zookeeper
-  ports:
-    - "9092:9092"
-  environment:
-    - KAFKA_ADVERTISED_HOST_NAME=0.0.0.0
-    - KAFKA_ADVERTISED_PORT=9092
-    - KAFKA_CREATE_TOPICS=customer:1:1,audit:1:1
-    - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-    - JMX_PORT=9999
-
-kafka-jmx-exporter:
-  build: ./prometheus-jmx-exporter
-  ports:
-    - "8080:8080"
-  links:
-    - kafka
-  environment:
-    - JMX_PORT=9999
-    - JMX_HOST=kafka
-    - HTTP_PORT=8080
-    - JMX_EXPORTER_CONFIG_FILE=kafka.yml
-
-prometheus:
-  ports:
-    - 9090:9090/tcp
-  image: prom/prometheus
-  volumes:
-    - ./mount/prometheus:/etc/prometheus
-  links:
-    - kafka-jmx-exporter
+version: '2'
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+  kafka:
+    build: .
+    links:
+     - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_OPTS: -javaagent:/usr/app/jmx_prometheus_javaagent.jar=7071:/usr/app/prom-jmx-agent-config.yml
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - 9090:9090/tcp
+    volumes:
+      - ./mount/prometheus:/etc/prometheus
+    links:
+      - kafka
