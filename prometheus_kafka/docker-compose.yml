@@ -10,6 +10,7 @@ services:
      - zookeeper
     ports:
       - "9092:9092"
+      - "7071:7071"
     environment:
       KAFKA_ADVERTISED_HOST_NAME: kafka
       KAFKA_ADVERTISED_PORT: 9092
